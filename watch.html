@@ -97,6 +97,7 @@
             display: flex;
             gap: var(--spacing-md);
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .margin-btn {
@@ -118,6 +119,50 @@
             border-color: var(--neon-purple);
             color: white;
         }
+
+        /* Responsive pour watch.html */
+        @media (max-width: 768px) {
+            .nav-buttons {
+                gap: var(--spacing-xs);
+            }
+
+            .btn-neon {
+                font-size: 11px;
+                padding: 8px 12px;
+            }
+
+            .btn-neon span {
+                display: inline;
+            }
+
+            .select-group {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .controls-panel {
+                padding: var(--spacing-sm);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-buttons {
+                flex-direction: column;
+                gap: var(--spacing-xs);
+            }
+
+            .btn-neon {
+                width: 100%;
+                justify-content: center;
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            .margin-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
     </style>
 </head>
 
@@ -137,7 +182,21 @@
                 <input type="text" class="search-input" placeholder="Rechercher..." autocomplete="off">
                 <div class="search-results"></div>
             </div>
+
+            <!-- Menu Hamburger Mobile -->
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
+
+        <!-- Navigation Mobile -->
+        <nav class="mobile-nav">
+            <a href="index.html" class="nav-link">Accueil</a>
+            <a href="catalogue.html" class="nav-link">Catalogue</a>
+            <a href="profile.html" class="nav-link">Profil</a>
+        </nav>
     </header>
 
     <!-- MAIN CONTENT -->
@@ -279,6 +338,7 @@
     <script src="js/user-tracking.js"></script>
     <script src="js/local-storage.js"></script>
     <script src="js/search.js"></script>
+    <script src="js/mobile-menu.js"></script>
     <script src="js/watch.js"></script>
 </body>
 
