@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue - CinéTN</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/modern-design.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .filters-container {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .filter-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .filter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-group h3 {
+            font-size: var(--font-size-base);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-size: var(--font-size-sm);
+        }
+
+        .filter-pill:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .filter-pill.active {
+            background: var(--accent-gradient);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .sort-select {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="index.html" class="logo">CinéTN</a>
+
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Accueil</a>
+                <a href="catalogue.html" class="nav-link active">Catalogue</a>
+                <a href="profile.html" class="nav-link">Profil</a>
+            </nav>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Rechercher..." autocomplete="off">
+                <div class="search-results"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main style="margin-top: var(--header-height); padding: var(--spacing-xl) 0;">
+        <div class="container">
+            <h1 class="gradient-text" style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-lg);">
+                📚 Catalogue
+            </h1>
+
+            <!-- FILTRES -->
+            <div class="filters-container">
+                <!-- TYPE -->
+                <div class="filter-group">
+                    <h3>📺 TYPES</h3>
+                    <div class="filter-pills" id="type-filters">
+                        <button class="filter-pill active" data-type="all">Tous</button>
+                        <button class="filter-pill" data-type="anime">Anime</button>
+                        <button class="filter-pill" data-type="serie">Séries</button>
+                        <button class="filter-pill" data-type="film">Films</button>
+                    </div>
+                </div>
+
+                <!-- GENRES -->
+                <div class="filter-group">
+                    <h3>🎭 GENRES</h3>
+                    <div class="filter-pills" id="genre-filters">
+                        <button class="filter-pill active" data-genre="all">Tous</button>
+                        <!-- Chargé dynamiquement -->
+                    </div>
+                </div>
+
+                <!-- ANNÉES -->
+                <div class="filter-group">
+                    <h3>📅 ANNÉES</h3>
+                    <div class="filter-pills" id="year-filters">
+                        <button class="filter-pill active" data-year="all">Toutes</button>
+                        <!-- Chargé dynamiquement -->
+                    </div>
+                </div>
+
+                <!-- LANGUES -->
+                <div class="filter-group">
+                    <h3>🌍 LANGUES</h3>
+                    <div class="filter-pills" id="language-filters">
+                        <button class="filter-pill active" data-language="all">Toutes</button>
+                        <button class="filter-pill" data-language="VF" title="Version Française">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="20" height="14"
+                                style="margin-right: 4px; vertical-align: middle;">
+                                <rect width="900" height="600" fill="#ED2939" />
+                                <rect width="600" height="600" fill="#fff" />
+                                <rect width="300" height="600" fill="#002395" />
+                            </svg>
+                            VF
+                        </button>
+                        <button class="filter-pill" data-language="VOSTFR"
+                            title="Version Originale Sous-Titrée Français">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="20" height="14"
+                                style="margin-right: 4px; vertical-align: middle;">
+                                <!-- Triangle supérieur gauche: Japon -->
+                                <polygon points="0,0 900,0 0,600" fill="#fff" />
+                                <circle cx="225" cy="200" r="100" fill="#BC002D" />
+                                <!-- Triangle inférieur droit: France -->
+                                <polygon points="900,0 900,600 0,600" fill="#ED2939" />
+                                <polygon points="900,0 900,600 300,600" fill="#fff" />
+                                <polygon points="900,0 900,600 600,600" fill="#002395" />
+                            </svg>
+                            VOSTFR
+                        </button>
+                        <button class="filter-pill" data-language="VA" title="Version Anglaise">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7410 3900" width="20" height="14"
+                                style="margin-right: 4px; vertical-align: middle;">
+                                <rect width="7410" height="3900" fill="#B22234" />
+                                <path d="M0,450H7410m0,600H0m0,600H7410m0,600H0m0,600H7410m0,600H0" stroke="#fff"
+                                    stroke-width="300" />
+                                <rect width="2964" height="2100" fill="#3C3B6E" />
+                            </svg>
+                            VA
+                        </button>
+                        <button class="filter-pill" data-language="VTN" title="Version Tunisienne">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="20" height="14"
+                                style="margin-right: 4px; vertical-align: middle;">
+                                <rect width="1200" height="800" fill="#E70013" />
+                                <circle cx="450" cy="400" r="200" fill="#fff" />
+                                <circle cx="500" cy="400" r="160" fill="#E70013" />
+                                <path fill="#fff" d="M600,400l-180,120l70-195l-70-195z" />
+                            </svg>
+                            VTN
+                        </button>
+                        <button class="filter-pill" data-language="VAR" title="Version Arabe">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="20" height="14"
+                                style="margin-right: 4px; vertical-align: middle;">
+                                <rect width="900" height="600" fill="#006C35" />
+                                <rect y="200" width="900" height="200" fill="#fff" />
+                            </svg>
+                            VAR
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BOUTON RESET -->
+                <button id="reset-filters" class="btn btn-secondary" style="margin-top: var(--spacing-md);">
+                    🔄 Réinitialiser les filtres
+                </button>
+            </div>
+
+            <!-- RÉSULTATS -->
+            <div class="results-header">
+                <h2 id="results-count" style="font-size: var(--font-size-lg);">Chargement...</h2>
+                <select id="sort-select" class="sort-select">
+                    <option value="recent">Plus récents</option>
+                    <option value="title">Titre (A-Z)</option>
+                    <option value="rating">Mieux notés</option>
+                    <option value="year">Année (décroissant)</option>
+                </select>
+            </div>
+
+            <div id="catalogue-grid" class="content-grid"></div>
+
+            <!-- PAGINATION -->
+            <div id="pagination" style="
+                display: flex;
+                justify-content: center;
+                gap: var(--spacing-sm);
+                margin-top: var(--spacing-xl);
+            "></div>
+        </div>
+    </main>
+
+    <!-- SCRIPTS -->
+    <script src="js/config.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/user-tracking.js"></script>
+    <script src="js/local-storage.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/catalogue.js"></script>
+</body>
+
+</html>

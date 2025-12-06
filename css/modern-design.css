@@ -1,0 +1,359 @@
+/* ============================================
+   NOUVEAU THÈME ULTRA VIBRANT - CinéTN
+   ============================================ */
+
+:root {
+    /* COULEURS VIBRANTES */
+    --bg-primary: #0a0014;
+    --bg-secondary: #1a0a2e;
+    --bg-tertiary: #16213e;
+
+    /* GRADIENTS EXPLOSIFS */
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-accent: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    --gradient-card: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+
+    /* NÉONS */
+    --neon-purple: #b24bf3;
+    --neon-blue: #00d4ff;
+    --neon-pink: #ff006e;
+    --neon-green: #00ff88;
+
+    /* GLASSMORPHISM AMÉLIORÉ */
+    --glass-bg: rgba(102, 126, 234, 0.1);
+    --glass-bg-hover: rgba(102, 126, 234, 0.2);
+    --glass-border: rgba(102, 126, 234, 0.3);
+    --glass-border-hover: rgba(102, 126, 234, 0.5);
+
+    /* OMBRES NÉON */
+    --glow-primary: 0 0 40px rgba(102, 126, 234, 0.6), 0 0 80px rgba(102, 126, 234, 0.3);
+    --glow-accent: 0 0 40px rgba(245, 87, 108, 0.6), 0 0 80px rgba(245, 87, 108, 0.3);
+    --glow-success: 0 0 40px rgba(79, 172, 254, 0.6), 0 0 80px rgba(79, 172, 254, 0.3);
+
+    /* TEXTE */
+    --text-primary: #ffffff;
+    --text-secondary: #b8b8ff;
+    --text-muted: #8888cc;
+
+    /* ANIMATIONS */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* BLUR */
+    --blur-sm: blur(10px);
+    --blur-md: blur(20px);
+    --blur-lg: blur(40px);
+}
+
+/* ============================================
+   BODY AVEC FOND ANIMÉ
+   ============================================ */
+body {
+    background: var(--bg-primary);
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(245, 87, 108, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 50%);
+    animation: gradient-move 15s ease infinite;
+    z-index: -1;
+}
+
+@keyframes gradient-move {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(50px, -50px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-50px, 50px) scale(0.9);
+    }
+}
+
+/* ============================================
+   CARTES ULTRA MODERNES
+   ============================================ */
+.glass-card-ultra {
+    background: var(--glass-bg);
+    backdrop-filter: var(--blur-md);
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card-ultra::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.glass-card-ultra:hover::before {
+    left: 100%;
+}
+
+.glass-card-ultra:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border-hover);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: var(--glow-primary);
+}
+
+/* ============================================
+   BADGES DRAPEAUX
+   ============================================ */
+.language-badges {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    z-index: 10;
+}
+
+.language-badge {
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    transition: all var(--transition-base);
+}
+
+.language-badge:hover {
+    transform: scale(1.2);
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 20px var(--neon-blue);
+}
+
+/* ============================================
+   BOUTONS NÉON
+   ============================================ */
+.btn-neon {
+    padding: 14px 32px;
+    background: transparent;
+    border: 2px solid var(--neon-purple);
+    border-radius: 12px;
+    color: var(--neon-purple);
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-base);
+    box-shadow: 0 0 20px rgba(178, 75, 243, 0.3);
+}
+
+.btn-neon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: var(--neon-purple);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-neon:hover::before {
+    width: 400px;
+    height: 400px;
+}
+
+.btn-neon:hover {
+    color: white;
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 40px var(--neon-purple), 0 0 80px rgba(178, 75, 243, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn-neon span {
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================
+   TEXTE NÉON ANIMÉ
+   ============================================ */
+.neon-text {
+    color: var(--neon-purple);
+    text-shadow:
+        0 0 10px var(--neon-purple),
+        0 0 20px var(--neon-purple),
+        0 0 30px var(--neon-purple),
+        0 0 40px var(--neon-purple);
+    animation: neon-flicker 3s infinite alternate;
+}
+
+@keyframes neon-flicker {
+
+    0%,
+    100% {
+        text-shadow:
+            0 0 10px var(--neon-purple),
+            0 0 20px var(--neon-purple),
+            0 0 30px var(--neon-purple),
+            0 0 40px var(--neon-purple);
+    }
+
+    50% {
+        text-shadow:
+            0 0 5px var(--neon-purple),
+            0 0 10px var(--neon-purple),
+            0 0 15px var(--neon-purple),
+            0 0 20px var(--neon-purple);
+    }
+}
+
+/* ============================================
+   CARTES CONTENU AVEC BADGES
+   ============================================ */
+.content-card-modern {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    background: var(--bg-tertiary);
+}
+
+.content-card-modern::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-card);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.content-card-modern:hover::after {
+    opacity: 1;
+}
+
+.content-card-modern:hover {
+    transform: translateY(-12px) scale(1.05);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.6),
+        0 0 60px rgba(102, 126, 234, 0.4);
+}
+
+.content-card-modern img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.content-card-modern:hover img {
+    transform: scale(1.1);
+}
+
+/* ============================================
+   ANIMATIONS AVANCÉES
+   ============================================ */
+@keyframes float-up {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgba(102, 126, 234, 0.8);
+    }
+}
+
+.animate-float-up {
+    animation: float-up 0.6s var(--ease-bounce) forwards;
+}
+
+.pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ============================================
+   SCROLLBAR PERSONNALISÉE
+   ============================================ */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gradient-primary);
+    border-radius: 6px;
+    border: 2px solid var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gradient-accent);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .glass-card-ultra:hover {
+        transform: none;
+    }
+
+    .language-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+}

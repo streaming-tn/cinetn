@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gérer les Commentaires - Admin CinéTN</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .comments-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+        }
+
+        .comments-table th,
+        .comments-table td {
+            padding: var(--spacing-md);
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comments-table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .comments-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .comment-preview {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .reply-badge {
+            background: var(--accent-primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin CinéTN</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
+            <a href="manage-content.html" class="sidebar-link">📺 Gérer le contenu</a>
+            <a href="manage-comments.html" class="sidebar-link active">💬 Gérer les commentaires</a>
+            <a href="add-content.html" class="sidebar-link">➕ Ajouter du contenu</a>
+            <a href="../index.html" class="sidebar-link">🏠 Retour au site</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+        <div class="admin-container">
+            <h1 class="gradient-text" style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-md);">
+                💬 Gérer les Commentaires
+            </h1>
+
+            <p style="color: var(--text-secondary); margin-bottom: var(--spacing-xl);">
+                Gérez tous les commentaires du site. Vous pouvez supprimer les commentaires inappropriés.
+            </p>
+
+            <!-- FILTERS -->
+            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                <button class="btn btn-secondary" onclick="filterComments('all')">
+                    Tous (<span id="count-all">0</span>)
+                </button>
+                <button class="btn btn-secondary" onclick="filterComments('parent')">
+                    Commentaires (<span id="count-parent">0</span>)
+                </button>
+                <button class="btn btn-secondary" onclick="filterComments('reply')">
+                    Réponses (<span id="count-reply">0</span>)
+                </button>
+            </div>
+
+            <!-- TABLE -->
+            <table class="comments-table">
+                <thead>
+                    <tr>
+                        <th>Auteur</th>
+                        <th>Commentaire</th>
+                        <th>Contenu</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="comments-tbody">
+                    <tr>
+                        <td colspan="6"
+                            style="text-align: center; padding: var(--spacing-xl); color: var(--text-secondary);">
+                            Chargement...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/admin/manage-comments.js"></script>
+</body>
+
+</html>

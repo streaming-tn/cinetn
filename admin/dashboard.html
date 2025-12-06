@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Admin CinéTN</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .stat-card-large {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+        }
+
+        .stat-card-large h3 {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            text-transform: uppercase;
+        }
+
+        .stat-card-large .value {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chart-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .top-content-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .top-content-table th,
+        .top-content-table td {
+            padding: var(--spacing-md);
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .top-content-table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .top-content-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin CinéTN</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-link active">📊 Dashboard</a>
+            <a href="manage-content.html" class="sidebar-link">📺 Gérer le contenu</a>
+            <a href="manage-comments.html" class="sidebar-link">💬 Gérer les commentaires</a>
+            <a href="add-content.html" class="sidebar-link">➕ Ajouter du contenu</a>
+            <a href="../index.html" class="sidebar-link">🏠 Retour au site</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+        <div class="admin-container">
+            <h1 class="gradient-text" style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-xl);">
+                📊 Dashboard
+            </h1>
+
+            <!-- STATS GRID -->
+            <div class="dashboard-grid">
+                <div class="stat-card-large">
+                    <h3>Total Contenus</h3>
+                    <div class="value" id="total-content">-</div>
+                </div>
+                <div class="stat-card-large">
+                    <h3>Total Vues</h3>
+                    <div class="value" id="total-views">-</div>
+                </div>
+                <div class="stat-card-large">
+                    <h3>Contenus Populaires</h3>
+                    <div class="value" id="popular-count">-</div>
+                </div>
+                <div class="stat-card-large">
+                    <h3>Utilisateurs Actifs</h3>
+                    <div class="value" id="active-users">-</div>
+                </div>
+            </div>
+
+            <!-- CHARTS -->
+            <div class="chart-container">
+                <h2 style="margin-bottom: var(--spacing-lg);">Répartition par Type</h2>
+                <canvas id="type-chart" style="max-height: 300px;"></canvas>
+            </div>
+
+            <!-- TOP CONTENT TABLE -->
+            <div class="chart-container">
+                <h2 style="margin-bottom: var(--spacing-lg);">Top 10 Contenus les Plus Vus</h2>
+                <table class="top-content-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Titre</th>
+                            <th>Type</th>
+                            <th>Année</th>
+                            <th>Vues</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-content-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-secondary);">Chargement...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/admin/dashboard.js"></script>
+</body>
+
+</html>

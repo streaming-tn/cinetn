@@ -1,0 +1,207 @@
+/* ============================================
+   HERO SLIDER - AUTO-SLIDING CAROUSEL
+   ============================================ */
+
+.hero-slider {
+    position: relative;
+    width: 100%;
+    height: 70vh;
+    overflow: hidden;
+    margin-top: var(--header-height);
+}
+
+.slider-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.slider-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* Amélioration de la qualité d'image */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.slider-slide.active {
+    opacity: 1;
+    z-index: 1;
+}
+
+.slider-slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(10, 0, 20, 0.3), rgba(10, 0, 20, 0.9));
+    z-index: 1;
+}
+
+.slide-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: var(--spacing-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.slide-title {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.slide-meta {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+}
+
+.slide-description {
+    max-width: 600px;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+}
+
+.slide-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+/* NAVIGATION ARROWS */
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    font-size: 24px;
+}
+
+.slider-arrow:hover {
+    background: rgba(102, 126, 234, 0.8);
+    border-color: var(--accent-primary);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+}
+
+.slider-arrow.prev {
+    left: 20px;
+}
+
+.slider-arrow.next {
+    right: 20px;
+}
+
+/* NAVIGATION DOTS */
+.slider-dots {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 12px;
+}
+
+.slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.slider-dot:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(1.2);
+}
+
+.slider-dot.active {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 10px var(--accent-primary);
+    width: 30px;
+    border-radius: 6px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .hero-slider {
+        height: 50vh;
+    }
+
+    .slide-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .slide-description {
+        display: none;
+    }
+
+    .slider-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .slider-arrow.prev {
+        left: 10px;
+    }
+
+    .slider-arrow.next {
+        right: 10px;
+    }
+
+    .slider-dots {
+        bottom: 20px;
+    }
+
+    .slider-dot {
+        width: 10px;
+        height: 10px;
+    }
+
+    .slider-dot.active {
+        width: 24px;
+    }
+}

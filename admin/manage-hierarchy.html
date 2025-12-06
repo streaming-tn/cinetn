@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Hiérarchique - Admin CinéTN</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: var(--spacing-lg);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .sidebar-link {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            transition: all var(--transition-base);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .main-content {
+            padding: var(--spacing-xl);
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: var(--spacing-xs);
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .hierarchy-section {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .hierarchy-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            margin-bottom: var(--spacing-sm);
+            transition: all var(--transition-base);
+        }
+
+        .hierarchy-item:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .hierarchy-item-info {
+            flex: 1;
+        }
+
+        .hierarchy-item-actions {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .action-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-size: var(--font-size-sm);
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .link-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm);
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-sm);
+            margin-top: var(--spacing-xs);
+        }
+
+        .link-item-url {
+            flex: 1;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-secondary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h2 class="gradient-text" style="margin-bottom: var(--spacing-lg);">Admin Panel</h2>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
+                <a href="add-content.html" class="sidebar-link">➕ Ajouter Contenu</a>
+                <a href="manage-content.html" class="sidebar-link">📝 Gérer Contenu</a>
+                <a href="manage-hierarchy.html" class="sidebar-link active">🗂️ Gestion Hiérarchique</a>
+                <a href="manage-episodes.html" class="sidebar-link">🎬 Smart Import</a>
+                <a href="migrate-players.html" class="sidebar-link">🔄 Migration Lecteurs</a>
+                <a href="../index.html" class="sidebar-link">🏠 Retour au site</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <h1 style="font-size: var(--font-size-2xl); margin-bottom: var(--spacing-md);">🗂️ Gestion Hiérarchique</h1>
+
+            <!-- BREADCRUMB -->
+            <div class="breadcrumb">
+                <div class="breadcrumb-item" id="breadcrumb-series">
+                    📺 Sélectionner une série
+                </div>
+                <span id="breadcrumb-arrow-1" style="display: none;">→</span>
+                <div class="breadcrumb-item" id="breadcrumb-season" style="display: none;">
+                    📁 Saison
+                </div>
+                <span id="breadcrumb-arrow-2" style="display: none;">→</span>
+                <div class="breadcrumb-item" id="breadcrumb-episode" style="display: none;">
+                    🎬 Épisode
+                </div>
+            </div>
+
+            <!-- NIVEAU 1 : SÉLECTION SÉRIE -->
+            <div id="level-series" class="hierarchy-section">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                    <h2>📺 Sélectionner une Série</h2>
+                    <input type="text" id="series-search" placeholder="Rechercher..." style="
+                            width: 300px;
+                            padding: var(--spacing-xs) var(--spacing-sm);
+                            background: var(--bg-tertiary);
+                            border: 1px solid var(--border-color);
+                            border-radius: var(--border-radius-md);
+                            color: var(--text-primary);
+                        ">
+                </div>
+                <div id="series-list"></div>
+            </div>
+
+            <!-- NIVEAU 2 : SAISONS -->
+            <div id="level-seasons" class="hierarchy-section" style="display: none;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                    <h2>📁 Saisons</h2>
+                    <div style="display: flex; gap: var(--spacing-sm);">
+                        <button class="btn btn-secondary" onclick="goBackToSeries()">← Retour</button>
+                        <button class="btn btn-primary" onclick="openAddSeasonModal()">➕ Ajouter Saison</button>
+                    </div>
+                </div>
+                <div id="seasons-list"></div>
+            </div>
+
+            <!-- NIVEAU 3 : ÉPISODES -->
+            <div id="level-episodes" class="hierarchy-section" style="display: none;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                    <h2>🎬 Épisodes</h2>
+                    <div style="display: flex; gap: var(--spacing-sm);">
+                        <button class="btn btn-secondary" onclick="goBackToSeasons()">← Retour</button>
+                        <button class="btn btn-primary" onclick="openAddEpisodeModal()">➕ Ajouter Épisode</button>
+                    </div>
+                </div>
+                <div id="episodes-list"></div>
+            </div>
+
+            <!-- NIVEAU 4 : LIENS -->
+            <div id="level-links" class="hierarchy-section" style="display: none;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                    <h2>🔗 Liens & Lecteurs</h2>
+                    <div style="display: flex; gap: var(--spacing-sm);">
+                        <button class="btn btn-secondary" onclick="goBackToEpisodes()">← Retour</button>
+                        <button class="btn btn-primary" onclick="openAddLinkModal()">➕ Ajouter Lien</button>
+                    </div>
+                </div>
+                <div id="links-list"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL SAISON -->
+    <div id="season-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="season-modal-title" style="margin-bottom: var(--spacing-md);">Ajouter une Saison</h2>
+            <form id="season-form">
+                <div class="form-group">
+                    <label>Numéro de saison</label>
+                    <input type="number" id="season-number" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Nom d'affichage (optionnel)</label>
+                    <input type="text" id="season-display-name" placeholder="Ex: Saison 1, Arc Wano... (auto si vide)">
+                    <p
+                        style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-top: var(--spacing-xs);">
+                        💡 Si vide, sera généré automatiquement : "Saison X"
+                    </p>
+                </div>
+                <div style="display: flex; gap: var(--spacing-md);">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeSeasonModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ÉPISODE -->
+    <div id="episode-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="episode-modal-title" style="margin-bottom: var(--spacing-md);">Ajouter un Épisode</h2>
+            <form id="episode-form">
+                <div class="form-group">
+                    <label>Numéro d'épisode</label>
+                    <input type="number" id="episode-number" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Titre (optionnel)</label>
+                    <input type="text" id="episode-title" placeholder="Titre de l'épisode">
+                </div>
+                <div style="display: flex; gap: var(--spacing-md);">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEpisodeModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL LIEN -->
+    <div id="link-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="link-modal-title" style="margin-bottom: var(--spacing-md);">Ajouter un Lien</h2>
+            <form id="link-form">
+                <div class="form-group">
+                    <label>Langue</label>
+                    <select id="link-language" required>
+                        <option value="VF">🇫🇷 VF (Français)</option>
+                        <option value="VOSTFR">🇯🇵 VOSTFR (Sous-titré FR)</option>
+                        <option value="VO">🇯🇵 VO (Japonais)</option>
+                        <option value="VA">🇺🇸 VA (Anglais)</option>
+                        <option value="VTN">🇹🇳 VTN (Tunisien)</option>
+                        <option value="VAR">🇸🇦 VAR (Arabe)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nom du serveur/lecteur</label>
+                    <input type="text" id="link-server" placeholder="Ex: Sendvid, Vidmoly..." required>
+                </div>
+                <div class="form-group">
+                    <label>URL du lien</label>
+                    <input type="url" id="link-url" placeholder="https://..." required>
+                </div>
+                <div style="display: flex; gap: var(--spacing-md);">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeLinkModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/admin/manage-hierarchy.js"></script>
+</body>
+
+</html>

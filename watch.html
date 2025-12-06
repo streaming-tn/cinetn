@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture - CinéTN</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .player-container {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .player-iframe {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: none;
+        }
+
+        .controls-panel {
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .language-selector {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .language-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-md);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .language-btn:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .language-btn.active {
+            border-color: var(--accent-primary);
+            background: rgba(0, 242, 255, 0.1);
+        }
+
+        .language-flag {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .select-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .select-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .select-wrapper label {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .select-wrapper select {
+            padding: var(--spacing-sm);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: center;
+        }
+
+        .margin-btn {
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .margin-btn:hover {
+            border-color: var(--neon-purple);
+        }
+
+        .margin-btn.active {
+            background: var(--neon-purple);
+            border-color: var(--neon-purple);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="index.html" class="logo">CinéTN</a>
+
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Accueil</a>
+                <a href="catalogue.html" class="nav-link">Catalogue</a>
+                <a href="profile.html" class="nav-link">Profil</a>
+            </nav>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Rechercher..." autocomplete="off">
+                <div class="search-results"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main style="margin-top: var(--header-height); padding: var(--spacing-lg) 0;">
+        <div class="container">
+            <!-- TITRE & RETOUR -->
+            <div style="margin-bottom: var(--spacing-md);">
+                <a id="back-link" href="#" style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: var(--spacing-xs);
+                    color: var(--accent-primary);
+                    margin-bottom: var(--spacing-sm);
+                ">
+                    ← Retour à <span id="series-title"></span>
+                </a>
+                <h1 id="episode-title" style="font-size: var(--font-size-2xl);"></h1>
+            </div>
+
+            <!-- LECTEUR -->
+            <div class="player-container">
+                <!-- BOUTONS DE NAVIGATION EN HAUT -->
+                <div class="nav-buttons"
+                    style="padding: var(--spacing-md); background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color);">
+                    <button id="btn-prev-top" class="btn-neon">
+                        <span>⬅️ Précédent</span>
+                    </button>
+                    <button id="btn-last-top" class="btn-neon">
+                        <span>📺 Dernier épisode</span>
+                    </button>
+                    <button id="btn-next-top" class="btn-neon">
+                        <span>Suivant ➡️</span>
+                    </button>
+                </div>
+
+
+                <div id="iframe-wrapper" style="background: transparent;">
+                    <iframe id="player-iframe" class="player-iframe" allowfullscreen></iframe>
+                </div>
+
+                <div class="controls-panel">
+                    <!-- SÉLECTEUR DE LANGUE -->
+                    <div class="language-selector" id="language-selector"></div>
+
+                    <!-- SÉLECTEURS -->
+                    <div class="select-group">
+                        <div class="select-wrapper">
+                            <label>Épisode</label>
+                            <select id="episode-select"></select>
+                        </div>
+                        <div class="select-wrapper">
+                            <label>Lecteur</label>
+                            <select id="player-select"></select>
+                        </div>
+                    </div>
+
+                    <!-- BOUTONS DE NAVIGATION -->
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <!-- PARAMÈTRES D'AMBIANCE -->
+                        <div style="position: relative;">
+                            <button id="settings-btn" class="btn-glass"
+                                style="display: flex; align-items: center; gap: 8px;">
+                                <span>⚙️ Paramètres d'ambiance</span>
+                                <span id="settings-arrow">▼</span>
+                            </button>
+
+                            <div id="settings-menu" style="
+                                display: none;
+                                position: absolute;
+                                bottom: 100%;
+                                left: 0;
+                                margin-bottom: 8px;
+                                background: var(--bg-tertiary);
+                                border: 2px solid var(--glass-border);
+                                border-radius: 12px;
+                                padding: 16px;
+                                min-width: 300px;
+                                z-index: 1000;
+                                backdrop-filter: blur(20px);
+                                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+                            ">
+                                <div style="margin-bottom: 12px;">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" id="auto-margins"
+                                            style="width: 18px; height: 18px; cursor: pointer;">
+                                        <span>Activer les marges automatiques (autour du lecteur)</span>
+                                    </label>
+                                </div>
+
+                                <div id="margin-options" style="display: none;">
+                                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px;">Taille
+                                        des marges :</p>
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                        <button class="margin-btn" data-margin="0">0px</button>
+                                        <button class="margin-btn" data-margin="16">16px</button>
+                                        <button class="margin-btn active" data-margin="32">32px</button>
+                                        <button class="margin-btn" data-margin="64">64px</button>
+                                        <button class="margin-btn" data-margin="128">128px</button>
+                                        <button class="margin-btn" data-margin="256">256px</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="nav-buttons">
+                            <button id="btn-prev" class="btn btn-secondary">
+                                ⬅️ Précédent
+                            </button>
+                            <button id="btn-last" class="btn btn-secondary">
+                                📺 Dernier épisode
+                            </button>
+                            <button id="btn-next" class="btn btn-secondary">
+                                Suivant ➡️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MESSAGE D'ERREUR -->
+                <div id="error-message" style="
+                display: none;
+                padding: var(--spacing-md);
+                background: rgba(255, 0, 0, 0.1);
+                border: 1px solid rgba(255, 0, 0, 0.3);
+                border-radius: var(--border-radius-md);
+                text-align: center;
+                margin-top: var(--spacing-md);
+            ">
+                    <p style="color: #ff6b6b;">
+                        ⚠️ Ce lecteur semble indisponible. Essayez un autre lecteur.
+                    </p>
+                </div>
+            </div>
+    </main>
+
+    <!-- SCRIPTS -->
+    <script src="js/config.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/user-tracking.js"></script>
+    <script src="js/local-storage.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/watch.js"></script>
+</body>
+
+</html>

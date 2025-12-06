@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails - CinéTN</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="index.html" class="logo">CinéTN</a>
+
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Accueil</a>
+                <a href="catalogue.html" class="nav-link">Catalogue</a>
+                <a href="profile.html" class="nav-link">Profil</a>
+            </nav>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Rechercher..." autocomplete="off">
+                <div class="search-results"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main style="margin-top: var(--header-height);">
+        <!-- HERO BACKDROP -->
+        <div id="hero-backdrop" style="
+            height: 60vh;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        ">
+            <div style="
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(to bottom, transparent 50%, var(--bg-primary));
+            "></div>
+        </div>
+
+        <!-- DETAILS SECTION -->
+        <div class="container" style="margin-top: calc(-1 * var(--spacing-xl)); position: relative;">
+            <div style="display: flex; gap: var(--spacing-xl); align-items: flex-start;">
+                <!-- POSTER -->
+                <img id="poster" src="" alt="" style="
+                        width: 300px;
+                        border-radius: var(--border-radius-lg);
+                        box-shadow: var(--shadow-lg);
+                    ">
+
+                <!-- INFO -->
+                <div style="flex: 1;">
+                    <h1 id="title" class="gradient-text"
+                        style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-md);"></h1>
+
+                    <div
+                        style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); flex-wrap: wrap;">
+                        <span id="year" style="color: var(--text-secondary);"></span>
+                        <span id="type" style="color: var(--text-secondary);"></span>
+                        <span id="rating" style="color: var(--accent-primary);"></span>
+                    </div>
+
+                    <div id="genres"
+                        style="display: flex; gap: var(--spacing-xs); margin-bottom: var(--spacing-lg); flex-wrap: wrap;">
+                    </div>
+
+                    <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--spacing-sm);">Synopsis</h3>
+                    <p id="description"
+                        style="color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--spacing-lg);"></p>
+
+                    <!-- ACTIONS -->
+                    <div style="display: flex; gap: var(--spacing-md);">
+                        <button id="btn-favorite" class="btn btn-secondary">
+                            ⭐ Favoris
+                        </button>
+                        <button id="btn-watchlist" class="btn btn-secondary">
+                            👁️ Watchlist
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAISONS -->
+            <div style="margin-top: var(--spacing-xl);">
+                <h2 style="font-size: var(--font-size-2xl); margin-bottom: var(--spacing-md);">
+                    Saisons
+                </h2>
+                <div id="seasons-container" style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                    gap: var(--spacing-md);
+                "></div>
+            </div>
+
+            <!-- CONTENUS SIMILAIRES -->
+            <div style="margin-top: var(--spacing-2xl);">
+                <h2 style="font-size: var(--font-size-2xl); margin-bottom: var(--spacing-md);">
+                    📺 Contenus similaires
+                </h2>
+                <div id="similar-content" class="content-grid"></div>
+            </div>
+
+            <!-- COMMENTAIRES -->
+            <div style="margin-top: var(--spacing-2xl);">
+                <h2 style="font-size: var(--font-size-2xl); margin-bottom: var(--spacing-md);">
+                    💬 Commentaires
+                </h2>
+
+                <!-- Add Comment Form -->
+                <div
+                    style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                    <h3 style="margin-bottom: var(--spacing-md);">Ajouter un commentaire</h3>
+                    <input type="text" id="comment-name" placeholder="Votre nom" maxlength="50"
+                        style="width: 100%; padding: var(--spacing-sm); background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); margin-bottom: var(--spacing-sm);">
+                    <textarea id="comment-text" placeholder="Votre commentaire..." rows="4" maxlength="500"
+                        style="width: 100%; padding: var(--spacing-sm); background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); color: var(--text-primary); margin-bottom: var(--spacing-sm); resize: vertical;"></textarea>
+                    <button id="submit-comment" class="btn btn-primary">
+                        💬 Publier le commentaire
+                    </button>
+                </div>
+
+                <!-- Comments List -->
+                <div id="comments-list"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SCRIPTS -->
+    <script src="js/config.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/user-tracking.js"></script>
+    <script src="js/local-storage.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/comments.js"></script>
+    <script src="js/details.js"></script>
+
+    <style>
+        .comment-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .comment-reply {
+            background: var(--bg-tertiary);
+            margin-left: var(--spacing-xl);
+            margin-top: var(--spacing-sm);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .comment-time {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        .comment-text {
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-sm);
+            white-space: pre-wrap;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .comment-action-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            transition: all var(--transition-base);
+        }
+
+        .comment-action-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .comment-action-btn.delete-btn:hover {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .reply-form {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border-radius: var(--border-radius-md);
+        }
+
+        .reply-name-input,
+        .reply-text-input {
+            width: 100%;
+            padding: var(--spacing-sm);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .reply-text-input {
+            resize: vertical;
+        }
+
+        .comment-replies {
+            margin-top: var(--spacing-md);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-md);
+            font-size: var(--font-size-sm);
+        }
+    </style>
+</body>
+
+</html>

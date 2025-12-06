@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - CinéTN</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Particules animées en arrière-plan */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            animation: float-particle 20s infinite;
+        }
+
+        @keyframes float-particle {
+
+            0%,
+            100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Grille animée en arrière-plan */
+        .grid-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: grid-move 20s linear infinite;
+        }
+
+        @keyframes grid-move {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(50px);
+            }
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 450px;
+            padding: 48px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur-md);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            z-index: 10;
+            animation: fadeInScale 0.8s var(--ease-bounce);
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: var(--gradient-primary);
+            border-radius: 24px;
+            opacity: 0.3;
+            z-index: -1;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: var(--glow-primary);
+        }
+
+        .login-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            animation: gradient-shift 3s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all var(--transition-base);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: var(--glow-primary);
+            transform: translateY(-2px);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-login:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-primary), var(--shadow-lg);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 16px;
+            display: none;
+            animation: fadeIn 0.3s var(--transition-base);
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: rotate 1s linear infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .login-box {
+                max-width: 90%;
+                padding: 32px 24px;
+            }
+
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+
+            .login-title {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Grille animée -->
+        <div class="grid-bg"></div>
+
+        <!-- Particules flottantes -->
+        <div class="particles" id="particles"></div>
+
+        <!-- Boîte de connexion -->
+        <div class="login-box">
+            <div class="logo-container">
+                <div class="logo-icon">🎬</div>
+                <h1 class="login-title">Admin Panel</h1>
+                <p class="login-subtitle">Connectez-vous pour gérer CinéTN</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label">📧 Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="admin@cinetn.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">🔒 Mot de passe</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-login" id="login-btn">
+                    <span id="btn-text">Se connecter</span>
+                </button>
+
+                <div class="error-message" id="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        // Créer les particules
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = Math.random() * 10 + 5 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = Math.random() * 10 + 15 + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Gestion du formulaire
+        const loginForm = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+        const btnText = document.getElementById('btn-text');
+        const errorMsg = document.getElementById('error-message');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // État de chargement
+            loginBtn.disabled = true;
+            btnText.innerHTML = '<span class="loading-spinner"></span>';
+            errorMsg.classList.remove('show');
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                // Animation de succès
+                btnText.textContent = '✅ Connexion réussie !';
+
+                // Redirection après une courte pause
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 800);
+
+            } catch (error) {
+                // Afficher l'erreur
+                errorMsg.textContent = '❌ Identifiants incorrects. Veuillez réessayer.';
+                errorMsg.classList.add('show');
+
+                // Réinitialiser le bouton
+                loginBtn.disabled = false;
+                btnText.textContent = 'Se connecter';
+
+                // Animation de secousse
+                loginForm.style.animation = 'none';
+                setTimeout(() => {
+                    loginForm.style.animation = 'fadeIn 0.3s var(--transition-base)';
+                }, 10);
+            }
+        });
+
+        // Animation au focus des inputs
+        const inputs = document.querySelectorAll('.form-input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentElement.style.transform = 'translateX(5px)';
+            });
+
+            input.addEventListener('blur', function () {
+                this.parentElement.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
+</body>
+
+</html>

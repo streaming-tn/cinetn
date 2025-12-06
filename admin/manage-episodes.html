@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gérer Épisodes - Admin CinéTN</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: var(--spacing-lg);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .sidebar-link {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            transition: all var(--transition-base);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .main-content {
+            padding: var(--spacing-xl);
+            max-width: 1200px;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-secondary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .preview-container {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .episode-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm);
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .link-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-sm);
+            margin-top: var(--spacing-xs);
+            font-size: var(--font-size-sm);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h2 class="gradient-text" style="margin-bottom: var(--spacing-lg);">Admin Panel</h2>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
+                <a href="add-content.html" class="sidebar-link">➕ Ajouter Contenu</a>
+                <a href="manage-content.html" class="sidebar-link">📝 Gérer Contenu</a>
+                <a href="manage-hierarchy.html" class="sidebar-link">🗂️ Gestion Hiérarchique</a>
+                <a href="manage-episodes.html" class="sidebar-link active">🎬 Smart Import</a>
+                <a href="migrate-players.html" class="sidebar-link">🔄 Migration Lecteurs</a>
+                <a href="../index.html" class="sidebar-link">🏠 Retour au site</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <h1 style="font-size: var(--font-size-2xl); margin-bottom: var(--spacing-lg);">🎬 Smart Import - Gestion des
+                Épisodes</h1>
+
+            <!-- FORMULAIRE SMART IMPORT -->
+            <div class="glass" style="padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+                <h2 style="margin-bottom: var(--spacing-md);">Import en Masse</h2>
+
+                <div class="form-group">
+                    <label>Sélectionner le contenu</label>
+                    <select id="series-select">
+                        <option value="">Chargement...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Saison</label>
+                    <select id="season-select">
+                        <option value="">Sélectionnez d'abord un contenu</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Langue des liens</label>
+                    <select id="language-select">
+                        <option value="VF">🇫🇷 VF (Français)</option>
+                        <option value="VOSTFR">🇯🇵 VOSTFR (Sous-titré FR)</option>
+                        <option value="VO">🇯🇵 VO (Japonais)</option>
+                        <option value="VA">🇺🇸 VA (Anglais)</option>
+                        <option value="VTN">🇹🇳 VTN (Tunisien)</option>
+                        <option value="VAR">🇸🇦 VAR (Arabe)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Code JavaScript (var eps1 = [...], var eps2 = [...], etc.)</label>
+                    <textarea id="js-code" placeholder="Collez votre code JavaScript ici...
+
+Exemple:
+var eps1 = [
+  'https://sendvid.com/embed/up01jsqj',
+  'https://sendvid.com/embed/udiuhfeq'
+];
+
+var eps2 = [
+  'https://vidmoly.to/embed-qwvo7wyduen5.html',
+  'https://vidmoly.to/embed-4hxjrfohe5la.html'
+];"></textarea>
+                </div>
+
+                <div style="display: flex; gap: var(--spacing-md);">
+                    <button id="btn-analyze" class="btn btn-secondary">
+                        🔍 Analyser et Prévisualiser
+                    </button>
+                    <button id="btn-import" class="btn btn-primary" disabled>
+                        ✅ Importer dans la base de données
+                    </button>
+                </div>
+            </div>
+
+            <!-- PRÉVISUALISATION -->
+            <div id="preview-section" style="display: none;">
+                <h2 style="margin-bottom: var(--spacing-md);">Prévisualisation</h2>
+                <div id="preview-content" class="preview-container"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/admin/smart-import.js"></script>
+    <script>
+        let allSeries = [];
+        let allSeasons = [];
+        let parsedData = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Vérifier l'authentification
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            await loadSeries();
+            setupEventListeners();
+        });
+
+        async function loadSeries() {
+            try {
+                const { data, error } = await supabase
+                    .from('series')
+                    .select('*')
+                    .order('title');
+
+                if (error) throw error;
+
+                allSeries = data || [];
+                const select = document.getElementById('series-select');
+                select.innerHTML = '<option value="">Choisissez un contenu...</option>' +
+                    allSeries.map(s => `<option value="${s.id}">${s.title} (${s.type})</option>`).join('');
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        async function loadSeasons(seriesId) {
+            try {
+                const { data, error } = await supabase
+                    .from('seasons')
+                    .select('*')
+                    .eq('series_id', seriesId)
+                    .order('season_number');
+
+                if (error) throw error;
+
+                allSeasons = data || [];
+                const select = document.getElementById('season-select');
+                select.innerHTML = '<option value="">Choisissez une saison...</option>' +
+                    allSeasons.map(s => `<option value="${s.id}">${s.display_name}</option>`).join('');
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('series-select').addEventListener('change', (e) => {
+                if (e.target.value) {
+                    loadSeasons(e.target.value);
+                }
+            });
+
+            document.getElementById('btn-analyze').addEventListener('click', analyzeCode);
+            document.getElementById('btn-import').addEventListener('click', importEpisodes);
+        }
+
+        function analyzeCode() {
+            const code = document.getElementById('js-code').value;
+            const language = document.getElementById('language-select').value;
+
+            if (!code.trim()) {
+                alert('Veuillez coller du code JavaScript');
+                return;
+            }
+
+            try {
+                parsedData = parseJavaScriptCode(code);
+                displayPreview(parsedData, language);
+                document.getElementById('btn-import').disabled = false;
+            } catch (error) {
+                alert('Erreur lors de l\'analyse: ' + error.message);
+            }
+        }
+
+        function displayPreview(data, language) {
+            const preview = document.getElementById('preview-content');
+            const section = document.getElementById('preview-section');
+
+            section.style.display = 'block';
+
+            const totalEpisodes = data.episodeCount;
+            const totalPlayers = data.players.length;
+
+            preview.innerHTML = `
+                <p style="margin-bottom: var(--spacing-md); color: var(--accent-primary);">
+                    ✅ <strong>${totalEpisodes} épisodes</strong> détectés avec <strong>${totalPlayers} lecteurs</strong> en <strong>${language}</strong>
+                </p>
+                ${data.preview.map((ep, index) => `
+                    <div class="episode-item">
+                        <span>Épisode ${index + 1}</span>
+                        <span style="color: var(--text-secondary);">${ep.linkCount} lecteur(s)</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        async function importEpisodes() {
+            const seasonId = document.getElementById('season-select').value;
+            const language = document.getElementById('language-select').value;
+
+            if (!seasonId) {
+                alert('Veuillez sélectionner une saison');
+                return;
+            }
+
+            if (!parsedData) {
+                alert('Veuillez d\'abord analyser le code');
+                return;
+            }
+
+            const confirmed = confirm(`Importer ${parsedData.episodeCount} épisodes en ${language} ?`);
+            if (!confirmed) return;
+
+            try {
+                document.getElementById('btn-import').textContent = '⏳ Import en cours...';
+                document.getElementById('btn-import').disabled = true;
+
+                await importEpisodesToSupabase(seasonId, language, parsedData);
+
+                alert('✅ Import réussi !');
+                document.getElementById('js-code').value = '';
+                document.getElementById('preview-section').style.display = 'none';
+                parsedData = null;
+            } catch (error) {
+                alert('❌ Erreur lors de l\'import: ' + error.message);
+            } finally {
+                document.getElementById('btn-import').textContent = '✅ Importer dans la base de données';
+            }
+        }
+    </script>
+</body>
+
+</html>

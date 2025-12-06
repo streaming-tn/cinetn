@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Lecteurs - Admin CinéTN</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: var(--spacing-lg);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .sidebar-link {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            transition: all var(--transition-base);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .main-content {
+            padding: var(--spacing-xl);
+            max-width: 900px;
+        }
+
+        .info-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .warning-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .log-container {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: var(--font-size-sm);
+        }
+
+        .log-entry {
+            padding: var(--spacing-xs);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .log-success {
+            color: #4caf50;
+        }
+
+        .log-error {
+            color: #ff6b6b;
+        }
+
+        .log-info {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h2 class="gradient-text" style="margin-bottom: var(--spacing-lg);">Admin Panel</h2>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
+                <a href="add-content.html" class="sidebar-link">➕ Ajouter Contenu</a>
+                <a href="manage-content.html" class="sidebar-link">📝 Gérer Contenu</a>
+                <a href="manage-hierarchy.html" class="sidebar-link">🗂️ Gestion Hiérarchique</a>
+                <a href="manage-episodes.html" class="sidebar-link">🎬 Smart Import</a>
+                <a href="migrate-players.html" class="sidebar-link active">🔄 Migration Lecteurs</a>
+                <a href="../index.html" class="sidebar-link">🏠 Retour au site</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <h1 style="font-size: var(--font-size-2xl); margin-bottom: var(--spacing-md);">🔄 Migration des Lecteurs
+            </h1>
+
+            <div class="info-box">
+                <h2 style="margin-bottom: var(--spacing-md);">📋 Que fait cet outil ?</h2>
+                <p style="margin-bottom: var(--spacing-sm);">
+                    Cet outil va automatiquement renommer tous les lecteurs de vos épisodes :
+                </p>
+                <ul style="margin-left: var(--spacing-lg); color: var(--text-secondary);">
+                    <li><code>eps1</code> → <strong>Lecteur 1</strong></li>
+                    <li><code>eps2</code> → <strong>Lecteur 2</strong></li>
+                    <li><code>epsAS</code> → <strong>Lecteur 3</strong></li>
+                    <li><code>eps4</code> → <strong>Lecteur 4</strong></li>
+                    <li>etc...</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Attention :</strong> Cette opération va modifier tous les épisodes de votre base de données.
+                Assurez-vous d'avoir une sauvegarde avant de continuer.
+            </div>
+
+            <div style="margin-bottom: var(--spacing-lg);">
+                <button id="btn-analyze" class="btn btn-secondary" style="margin-right: var(--spacing-sm);">
+                    🔍 Analyser les lecteurs
+                </button>
+                <button id="btn-migrate" class="btn btn-primary" disabled>
+                    ✅ Lancer la migration
+                </button>
+            </div>
+
+            <div id="stats-container" style="display: none; margin-bottom: var(--spacing-lg);">
+                <div class="info-box">
+                    <h3 style="margin-bottom: var(--spacing-md);">📊 Statistiques</h3>
+                    <div id="stats-content"></div>
+                </div>
+            </div>
+
+            <div id="log-section" style="display: none;">
+                <h3 style="margin-bottom: var(--spacing-md);">📝 Journal de migration</h3>
+                <div id="log-container" class="log-container"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script>
+        let episodesToMigrate = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Vérifier l'authentification
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.getElementById('btn-analyze').addEventListener('click', analyzeEpisodes);
+            document.getElementById('btn-migrate').addEventListener('click', migrateEpisodes);
+        });
+
+        async function analyzeEpisodes() {
+            const btn = document.getElementById('btn-analyze');
+            btn.textContent = '⏳ Analyse en cours...';
+            btn.disabled = true;
+
+            try {
+                // Récupérer tous les épisodes
+                const { data: episodes, error } = await supabase
+                    .from('episodes')
+                    .select('*');
+
+                if (error) throw error;
+
+                // Analyser les épisodes qui ont des lecteurs à renommer
+                episodesToMigrate = [];
+                let totalLinks = 0;
+                let linksToRename = 0;
+
+                for (const episode of episodes) {
+                    if (!episode.languages) continue;
+
+                    let needsMigration = false;
+
+                    for (const [lang, links] of Object.entries(episode.languages)) {
+                        for (const link of links) {
+                            totalLinks++;
+
+                            // Vérifier si le nom du serveur correspond au pattern eps1, eps2, etc.
+                            if (/^eps\w*$/i.test(link.server)) {
+                                linksToRename++;
+                                needsMigration = true;
+                            }
+                        }
+                    }
+
+                    if (needsMigration) {
+                        episodesToMigrate.push(episode);
+                    }
+                }
+
+                // Afficher les statistiques
+                displayStats(episodes.length, episodesToMigrate.length, totalLinks, linksToRename);
+
+                if (linksToRename > 0) {
+                    document.getElementById('btn-migrate').disabled = false;
+                }
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('❌ Erreur lors de l\'analyse');
+            } finally {
+                btn.textContent = '🔍 Analyser les lecteurs';
+                btn.disabled = false;
+            }
+        }
+
+        function displayStats(totalEpisodes, episodesToMigrate, totalLinks, linksToRename) {
+            const container = document.getElementById('stats-container');
+            const content = document.getElementById('stats-content');
+
+            container.style.display = 'block';
+
+            content.innerHTML = `
+                <p style="margin-bottom: var(--spacing-sm);">
+                    <strong>Total d'épisodes :</strong> ${totalEpisodes}
+                </p>
+                <p style="margin-bottom: var(--spacing-sm);">
+                    <strong>Épisodes à migrer :</strong> ${episodesToMigrate}
+                </p>
+                <p style="margin-bottom: var(--spacing-sm);">
+                    <strong>Total de liens :</strong> ${totalLinks}
+                </p>
+                <p style="color: var(--accent-primary);">
+                    <strong>Liens à renommer :</strong> ${linksToRename}
+                </p>
+            `;
+        }
+
+        async function migrateEpisodes() {
+            const confirmed = confirm(`Migrer ${episodesToMigrate.length} épisodes ?`);
+            if (!confirmed) return;
+
+            const btn = document.getElementById('btn-migrate');
+            btn.textContent = '⏳ Migration en cours...';
+            btn.disabled = true;
+
+            const logSection = document.getElementById('log-section');
+            const logContainer = document.getElementById('log-container');
+            logSection.style.display = 'block';
+            logContainer.innerHTML = '';
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            try {
+                for (const episode of episodesToMigrate) {
+                    try {
+                        const newLanguages = { ...episode.languages };
+
+                        // Pour chaque langue
+                        for (const [lang, links] of Object.entries(newLanguages)) {
+                            // Grouper les liens par pattern eps
+                            const epsLinks = links.filter(l => /^eps\w*$/i.test(l.server));
+
+                            // Créer un mapping des noms eps vers des numéros
+                            const epsNames = [...new Set(epsLinks.map(l => l.server))].sort();
+
+                            // Renommer chaque lien
+                            for (let i = 0; i < links.length; i++) {
+                                if (/^eps\w*$/i.test(links[i].server)) {
+                                    const epsIndex = epsNames.indexOf(links[i].server);
+                                    const oldName = links[i].server;
+                                    links[i].server = `Lecteur ${epsIndex + 1}`;
+
+                                    addLog(`Episode ${episode.episode_number} (${lang}): ${oldName} → ${links[i].server}`, 'success');
+                                }
+                            }
+                        }
+
+                        // Mettre à jour l'épisode
+                        const { error } = await supabase
+                            .from('episodes')
+                            .update({ languages: newLanguages })
+                            .eq('id', episode.id);
+
+                        if (error) throw error;
+
+                        successCount++;
+
+                    } catch (error) {
+                        errorCount++;
+                        addLog(`Erreur pour l'épisode ${episode.episode_number}: ${error.message}`, 'error');
+                    }
+                }
+
+                addLog(`\n✅ Migration terminée ! ${successCount} épisodes migrés, ${errorCount} erreurs`, 'info');
+                alert(`✅ Migration terminée !\n${successCount} épisodes migrés\n${errorCount} erreurs`);
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('❌ Erreur lors de la migration');
+            } finally {
+                btn.textContent = '✅ Lancer la migration';
+                btn.disabled = true;
+            }
+        }
+
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = message;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>

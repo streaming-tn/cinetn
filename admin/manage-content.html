@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gérer Contenu - Admin CinéTN</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: var(--spacing-lg);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .sidebar-link {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            transition: all var(--transition-base);
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: var(--bg-tertiary);
+            color: var(--accent-primary);
+        }
+
+        .main-content {
+            padding: var(--spacing-xl);
+        }
+
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+        }
+
+        .content-table th,
+        .content-table td {
+            padding: var(--spacing-md);
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .content-table th {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .content-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .content-poster-small {
+            width: 50px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: var(--border-radius-sm);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .action-btn {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-size: var(--font-size-sm);
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-secondary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h2 class="gradient-text" style="margin-bottom: var(--spacing-lg);">Admin Panel</h2>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
+                <a href="add-content.html" class="sidebar-link">➕ Ajouter Contenu</a>
+                <a href="manage-content.html" class="sidebar-link active">📝 Gérer Contenu</a>
+                <a href="manage-hierarchy.html" class="sidebar-link">🗂️ Gestion Hiérarchique</a>
+                <a href="manage-episodes.html" class="sidebar-link">🎬 Smart Import</a>
+                <a href="migrate-players.html" class="sidebar-link">🔄 Migration Lecteurs</a>
+                <a href="../index.html" class="sidebar-link">🏠 Retour au site</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <h1 style="font-size: var(--font-size-2xl); margin-bottom: var(--spacing-lg);">📝 Gérer le Contenu</h1>
+
+            <!-- FILTRES & RECHERCHE -->
+            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                <input type="text" id="search-input" placeholder="Rechercher un titre..." style="
+                        flex: 1;
+                        padding: var(--spacing-sm);
+                        background: var(--bg-tertiary);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--border-radius-md);
+                        color: var(--text-primary);
+                    ">
+                <select id="type-filter" style="
+                        padding: var(--spacing-sm);
+                        background: var(--bg-tertiary);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--border-radius-md);
+                        color: var(--text-primary);
+                    ">
+                    <option value="all">Tous les types</option>
+                    <option value="anime">Anime</option>
+                    <option value="serie">Série</option>
+                    <option value="film">Film</option>
+                </select>
+            </div>
+
+            <!-- TABLEAU -->
+            <div style="overflow-x: auto;">
+                <table class="content-table">
+                    <thead>
+                        <tr>
+                            <th>Affiche</th>
+                            <th>Titre</th>
+                            <th>Type</th>
+                            <th>Année</th>
+                            <th>Note</th>
+                            <th>Saisons</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="content-tbody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-secondary);">
+                                Chargement...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL SAISONS -->
+    <div id="seasons-modal" class="modal">
+        <div class="modal-content">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+                <h2>Gérer les Saisons</h2>
+                <button onclick="closeSeasonsModal()" style="
+                    background: none;
+                    border: none;
+                    color: var(--text-primary);
+                    font-size: var(--font-size-2xl);
+                    cursor: pointer;
+                ">×</button>
+            </div>
+
+            <div id="seasons-content"></div>
+
+            <h3 style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-md);">Ajouter une Saison</h3>
+            <form id="add-season-form">
+                <div class="form-group">
+                    <label>Numéro de la saison</label>
+                    <input type="number" id="season-number" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Nom d'affichage (optionnel)</label>
+                    <input type="text" id="season-display-name" placeholder="Ex: Saison 1, Arc Wano... (auto si vide)">
+                    <p
+                        style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-top: var(--spacing-xs);">
+                        💡 Si vide, sera généré automatiquement : "Saison X"
+                    </p>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Ajouter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT CONTENT -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+                <h2>Modifier le Contenu</h2>
+                <button onclick="closeEditModal()" style="
+                    background: none;
+                    border: none;
+                    color: var(--text-primary);
+                    font-size: var(--font-size-2xl);
+                    cursor: pointer;
+                ">×</button>
+            </div>
+
+            <form id="edit-content-form">
+                <div class="form-group">
+                    <label>Titre *</label>
+                    <input type="text" id="edit-title" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="edit-description" rows="4" placeholder="Description du contenu..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Type *</label>
+                    <select id="edit-type" required>
+                        <option value="anime">Anime</option>
+                        <option value="serie">Série</option>
+                        <option value="film">Film</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Année</label>
+                    <input type="number" id="edit-year" min="1900" max="2100" placeholder="2024">
+                </div>
+
+                <div class="form-group">
+                    <label>Note (0-10)</label>
+                    <input type="number" id="edit-rating" min="0" max="10" step="0.1" placeholder="8.5">
+                </div>
+
+                <div class="form-group">
+                    <label>Genres (séparés par des virgules)</label>
+                    <input type="text" id="edit-genres" placeholder="Action, Aventure, Comédie">
+                    <p
+                        style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-top: var(--spacing-xs);">
+                        💡 Séparez les genres par des virgules
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label>URL de l'affiche</label>
+                    <input type="url" id="edit-poster" placeholder="https://example.com/poster.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label>URL de l'image de fond (backdrop)</label>
+                    <input type="url" id="edit-backdrop" placeholder="https://example.com/backdrop.jpg">
+                    <p
+                        style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-top: var(--spacing-xs);">
+                        💡 Image paysage (16:9) utilisée dans le slider
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: var(--spacing-md);">
+                    <button type="button" onclick="closeEditModal()" class="btn btn-secondary" style="flex: 1;">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        💾 Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/admin/manage-content.js"></script>
+</body>
+
+</html>
