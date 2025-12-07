@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecteur - CinéTN (Demo Netflix Style)</title>
+    <link rel="stylesheet" href="netflix-style.css">
+    <style>
+        .demo-badge {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--netflix-red);
+            color: white;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .watch-container {
+            padding-top: var(--header-height);
+            background: var(--bg-primary);
+            min-height: 100vh;
+        }
+
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            background: #000;
+        }
+
+        .video-player {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            padding: var(--spacing-xl) var(--spacing-lg);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .video-player:hover .player-controls {
+            opacity: 1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-bottom: var(--spacing-md);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--netflix-red);
+            border-radius: 2px;
+            width: 35%;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .controls-left,
+        .controls-right {
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform var(--transition-fast);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .watch-info {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .watch-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .watch-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .episodes-section {
+            margin-top: var(--spacing-xl);
+        }
+
+        .section-title-small {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .episode-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .episode-card:hover {
+            transform: scale(1.02);
+            border-color: var(--netflix-red);
+        }
+
+        .episode-card.active {
+            border-color: var(--netflix-red);
+        }
+
+        .episode-thumbnail {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .episode-info {
+            padding: var(--spacing-md);
+        }
+
+        .episode-number {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .episode-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo-badge">🎨 DEMO - Lecteur</div>
+
+    <!-- Header -->
+    <header class="netflix-header scrolled">
+        <div class="header-content">
+            <a href="demo-index.html" class="logo">CinéTN</a>
+
+            <nav class="nav">
+                <a href="demo-index.html" class="nav-link">Accueil</a>
+                <a href="demo-catalogue.html" class="nav-link">Catalogue</a>
+                <a href="#" class="nav-link">Nouveautés</a>
+                <a href="#" class="nav-link">Ma Liste</a>
+            </nav>
+
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <button
+                    style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">🔍</button>
+                <button
+                    style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">🔔</button>
+                <button
+                    style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">👤</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="watch-container">
+        <!-- Video Player -->
+        <div class="player-wrapper">
+            <div class="video-player">
+                <div style="font-size: 64px;">▶️</div>
+
+                <!-- Player Controls -->
+                <div class="player-controls">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+
+                    <div class="controls-row">
+                        <div class="controls-left">
+                            <button class="control-btn">⏮️</button>
+                            <button class="control-btn">⏸️</button>
+                            <button class="control-btn">⏭️</button>
+                            <button class="control-btn">🔊</button>
+                            <span style="color: var(--text-secondary); font-size: 14px;">12:34 / 24:00</span>
+                        </div>
+
+                        <div class="controls-right">
+                            <button class="control-btn">⚙️</button>
+                            <button class="control-btn">💬</button>
+                            <button class="control-btn">⛶</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Watch Info -->
+        <div class="watch-info">
+            <h1 class="watch-title">Solo Leveling - Épisode 1</h1>
+            <div class="watch-meta">
+                <span>Saison 1</span>
+                <span>•</span>
+                <span>2024</span>
+                <span>•</span>
+                <span>ANIME</span>
+                <span>•</span>
+                <span>⭐ 8.5</span>
+            </div>
+
+            <!-- Episodes Section -->
+            <div class="episodes-section">
+                <h2 class="section-title-small">Épisodes - Saison 1</h2>
+
+                <div class="episodes-grid">
+                    <div class="episode-card active">
+                        <div class="episode-thumbnail">▶️</div>
+                        <div class="episode-info">
+                            <div class="episode-number">Épisode 1</div>
+                            <div class="episode-title">Le Chasseur le Plus Faible</div>
+                        </div>
+                    </div>
+
+                    <div class="episode-card">
+                        <div class="episode-thumbnail">▶️</div>
+                        <div class="episode-info">
+                            <div class="episode-number">Épisode 2</div>
+                            <div class="episode-title">Le Système</div>
+                        </div>
+                    </div>
+
+                    <div class="episode-card">
+                        <div class="episode-thumbnail">▶️</div>
+                        <div class="episode-info">
+                            <div class="episode-number">Épisode 3</div>
+                            <div class="episode-title">Montée en Niveau</div>
+                        </div>
+                    </div>
+
+                    <div class="episode-card">
+                        <div class="episode-thumbnail">▶️</div>
+                        <div class="episode-info">
+                            <div class="episode-number">Épisode 4</div>
+                            <div class="episode-title">Le Premier Donjon</div>
+                        </div>
+                    </div>
+
+                    <div class="episode-card">
+                        <div class="episode-thumbnail">▶️</div>
+                        <div class="episode-info">
+                            <div class="episode-number">Épisode 5</div>
+                            <div class="episode-title">Nouvelle Puissance</div>
+                        </div>
+                    </div>
+
+                    <div class="episode-card">
+                        <div class="episode-thumbnail">▶️</div>
+                        <div class="episode-info">
+                            <div class="episode-number">Épisode 6</div>
+                            <div class="episode-title">Le Raid</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

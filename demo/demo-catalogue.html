@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogue - CinéTN (Demo Netflix Style)</title>
+    <link rel="stylesheet" href="netflix-style.css">
+    <style>
+        .demo-badge {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--netflix-red);
+            color: white;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .catalogue-header {
+            padding: calc(var(--header-height) + var(--spacing-xl)) var(--spacing-xl) var(--spacing-xl);
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+
+        .catalogue-title {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filters {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-weight: 500;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--netflix-red);
+            color: var(--text-primary);
+            border-color: var(--netflix-red);
+        }
+
+        .catalogue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            padding: 0 var(--spacing-xl) var(--spacing-3xl);
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo-badge">🎨 DEMO - Catalogue</div>
+
+    <!-- Header -->
+    <header class="netflix-header scrolled">
+        <div class="header-content">
+            <a href="demo-index.html" class="logo">CinéTN</a>
+
+            <nav class="nav">
+                <a href="demo-index.html" class="nav-link">Accueil</a>
+                <a href="#" class="nav-link" style="color: var(--netflix-red);">Catalogue</a>
+                <a href="#" class="nav-link">Nouveautés</a>
+                <a href="#" class="nav-link">Ma Liste</a>
+            </nav>
+
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <button
+                    style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">🔍</button>
+                <button
+                    style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">🔔</button>
+                <button
+                    style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">👤</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Catalogue Header -->
+    <div class="catalogue-header">
+        <h1 class="catalogue-title">Catalogue Complet</h1>
+
+        <div class="filters">
+            <button class="filter-btn active">Tous</button>
+            <button class="filter-btn">Anime</button>
+            <button class="filter-btn">Série</button>
+            <button class="filter-btn">Film</button>
+            <button class="filter-btn">Action</button>
+            <button class="filter-btn">Comédie</button>
+            <button class="filter-btn">Drame</button>
+            <button class="filter-btn">Fantastique</button>
+            <button class="filter-btn">2024</button>
+            <button class="filter-btn">2023</button>
+        </div>
+    </div>
+
+    <!-- Catalogue Grid -->
+    <div class="catalogue-grid">
+        <!-- Repeat 24 cards for demo -->
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1611604548018-d56bbd85d681?w=300&h=450&fit=crop"
+                alt="Content 1">
+            <div class="card-overlay">
+                <div class="card-title">Solo Leveling</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.5</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=300&h=450&fit=crop"
+                alt="Content 2">
+            <div class="card-overlay">
+                <div class="card-title">Attack on Titan</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.8</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1606603696914-1d58d2f1c90a?w=300&h=450&fit=crop"
+                alt="Content 3">
+            <div class="card-overlay">
+                <div class="card-title">Jujutsu Kaisen</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.7</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1618945524163-32451704a253?w=300&h=450&fit=crop"
+                alt="Content 4">
+            <div class="card-overlay">
+                <div class="card-title">One Piece</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 9.2</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=300&h=450&fit=crop"
+                alt="Content 5">
+            <div class="card-overlay">
+                <div class="card-title">Naruto</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.9</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=300&h=450&fit=crop"
+                alt="Content 6">
+            <div class="card-overlay">
+                <div class="card-title">My Hero Academia</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.6</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1618519764620-7403abdbdfe9?w=300&h=450&fit=crop"
+                alt="Content 7">
+            <div class="card-overlay">
+                <div class="card-title">Tokyo Ghoul</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.5</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300&h=450&fit=crop"
+                alt="Content 8">
+            <div class="card-overlay">
+                <div class="card-title">Death Note</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 9.1</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=300&h=450&fit=crop"
+                alt="Content 9">
+            <div class="card-overlay">
+                <div class="card-title">Fullmetal Alchemist</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 9.3</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1618945524163-32451704a253?w=300&h=450&fit=crop"
+                alt="Content 10">
+            <div class="card-overlay">
+                <div class="card-title">Hunter x Hunter</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 9.0</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=300&h=450&fit=crop"
+                alt="Content 11">
+            <div class="card-overlay">
+                <div class="card-title">Steins;Gate</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.8</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1606603696914-1d58d2f1c90a?w=300&h=450&fit=crop"
+                alt="Content 12">
+            <div class="card-overlay">
+                <div class="card-title">Code Geass</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.7</div>
+            </div>
+        </div>
+
+        <!-- More cards... -->
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1611604548018-d56bbd85d681?w=300&h=450&fit=crop"
+                alt="Content 13">
+            <div class="card-overlay">
+                <div class="card-title">Demon Slayer</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 9.0</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?w=300&h=450&fit=crop"
+                alt="Content 14">
+            <div class="card-overlay">
+                <div class="card-title">Sword Art Online</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.4</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1606603696914-1d58d2f1c90a?w=300&h=450&fit=crop"
+                alt="Content 15">
+            <div class="card-overlay">
+                <div class="card-title">Bleach</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.6</div>
+            </div>
+        </div>
+
+        <div class="content-card-netflix">
+            <img src="https://images.unsplash.com/photo-1618945524163-32451704a253?w=300&h=450&fit=crop"
+                alt="Content 16">
+            <div class="card-overlay">
+                <div class="card-title">Fairy Tail</div>
+                <div class="card-meta">2024 • ANIME • ⭐ 8.3</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter buttons interaction
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    </script>
+</body>
+
+</html>
