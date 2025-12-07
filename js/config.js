@@ -5,7 +5,7 @@
 // Configuration API OMDb (Open Movie Database)
 const OMDB_CONFIG = {
     apiKey: '41c57d35',
-    baseUrl: 'http://www.omdbapi.com'
+    baseUrl: 'https://www.omdbapi.com'
 };
 
 // Mapping des langues vers les drapeaux
