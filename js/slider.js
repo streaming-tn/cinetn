@@ -72,7 +72,6 @@ function renderSlides() {
                     <span>•</span>
                     <span>⭐ ${item.rating || 'N/A'}</span>
                 </div>
-                <p class="slide-description">${item.description || 'Découvrez ce contenu passionnant sur CinéTN'}</p>
                 <div class="slide-cta">
                     <button class="btn-neon" onclick="window.location.href='details.html?id=${item.id}'">
                         <span>▶️ Regarder maintenant</span>
