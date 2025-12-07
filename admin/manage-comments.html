@@ -11,6 +11,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- Script d'authentification admin -->
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/admin/admin-auth.js"></script>
+
     <style>
         .comments-table {
             width: 100%;
@@ -67,6 +72,11 @@
             <a href="manage-comments.html" class="sidebar-link active">💬 Gérer les commentaires</a>
             <a href="add-content.html" class="sidebar-link">➕ Ajouter du contenu</a>
             <a href="../index.html" class="sidebar-link">🏠 Retour au site</a>
+            <hr style="border-color: var(--border-color); margin: var(--spacing-md) 0;">
+            <button id="logout-btn" class="sidebar-link"
+                style="width: 100%; text-align: left; background: transparent; border: none; color: inherit; cursor: pointer; font-size: inherit; font-family: inherit; padding: var(--spacing-sm) var(--spacing-md); transition: all var(--transition-base);">
+                🚪 Déconnexion
+            </button>
         </nav>
     </aside>
 
@@ -118,8 +128,6 @@
         </div>
     </main>
 
-    <script src="../js/config.js"></script>
-    <script src="../js/supabase-client.js"></script>
     <script src="../js/admin/manage-comments.js"></script>
 </body>
 
