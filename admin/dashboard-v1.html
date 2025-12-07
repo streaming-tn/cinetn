@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard V1 - Admin CinéTN</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/modern-design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Script d'authentification admin -->
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/admin/admin-auth.js"></script>
+
+    <style>
+        .dashboard-container {
+            padding: var(--spacing-xl);
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header avec gradient */
+        .dashboard-header {
+            margin-bottom: var(--spacing-2xl);
+            position: relative;
+        }
+
+        .dashboard-header h1 {
+            font-size: var(--font-size-3xl);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .dashboard-header p {
+            color: var(--text-secondary);
+            font-size: var(--font-size-base);
+        }
+
+        /* Stats Grid - 3 colonnes */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-primary);
+            opacity: 0.1;
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .stat-card-icon {
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+
+        .stat-card-title {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-card-subtitle {
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+        }
+
+        .stat-card-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .trend-up {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+        }
+
+        .trend-down {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .chart-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+        }
+
+        .chart-card h2 {
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-primary);
+        }
+
+        /* Activity Section */
+        .activity-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .activity-tabs {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-tab {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: all var(--transition-base);
+        }
+
+        .activity-tab.active {
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border-radius: var(--border-radius-md);
+            transition: all var(--transition-base);
+        }
+
+        .activity-item:hover {
+            background: var(--bg-primary);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: var(--gradient-primary);
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: var(--font-size-sm);
+            color: var(--text-secondary);
+        }
+
+        /* Top Content Table */
+        .top-content-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .top-content-table th,
+        .top-content-table td {
+            padding: var(--spacing-md);
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .top-content-table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+        }
+
+        .top-content-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+        }
+
+        .rank-1 {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+        }
+
+        .rank-2 {
+            background: linear-gradient(135deg, #C0C0C0, #808080);
+            color: #000;
+        }
+
+        .rank-3 {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+            color: #fff;
+        }
+
+        .rank-other {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        /* Loading State */
+        .loading-skeleton {
+            background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: var(--border-radius-md);
+            height: 20px;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin CinéTN</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-link">📊 Dashboard</a>
+            <a href="dashboard-v1.html" class="sidebar-link active">✨ Dashboard V1</a>
+            <a href="manage-content.html" class="sidebar-link">📺 Gérer le contenu</a>
+            <a href="manage-comments.html" class="sidebar-link">💬 Gérer les commentaires</a>
+            <a href="add-content.html" class="sidebar-link">➕ Ajouter du contenu</a>
+            <a href="../index.html" class="sidebar-link">🏠 Retour au site</a>
+            <hr style="border-color: var(--border-color); margin: var(--spacing-md) 0;">
+            <button id="logout-btn" class="sidebar-link"
+                style="width: 100%; text-align: left; background: transparent; border: none; color: inherit; cursor: pointer; font-size: inherit; font-family: inherit; padding: var(--spacing-sm) var(--spacing-md); transition: all var(--transition-base);">
+                🚪 Déconnexion
+            </button>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+        <div class="dashboard-container">
+            <!-- Header -->
+            <div class="dashboard-header">
+                <h1>📊 Dashboard Analytics</h1>
+                <p>Vue d'ensemble de votre plateforme de streaming</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Total Contenus</div>
+                        </div>
+                        <div class="stat-card-icon">📺</div>
+                    </div>
+                    <div class="stat-card-value" id="total-content">-</div>
+                    <div class="stat-card-subtitle">Animes, Séries & Films</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Total Épisodes</div>
+                        </div>
+                        <div class="stat-card-icon">🎬</div>
+                    </div>
+                    <div class="stat-card-value" id="total-episodes">-</div>
+                    <div class="stat-card-subtitle">Disponibles en streaming</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Total Vues</div>
+                        </div>
+                        <div class="stat-card-icon">👁️</div>
+                    </div>
+                    <div class="stat-card-value" id="total-views">-</div>
+                    <div class="stat-card-subtitle">Vues cumulées</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Commentaires</div>
+                        </div>
+                        <div class="stat-card-icon">💬</div>
+                    </div>
+                    <div class="stat-card-value" id="total-comments">-</div>
+                    <div class="stat-card-subtitle">Interactions utilisateurs</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Utilisateurs Actifs</div>
+                        </div>
+                        <div class="stat-card-icon">👥</div>
+                    </div>
+                    <div class="stat-card-value" id="active-users">-</div>
+                    <div class="stat-card-subtitle">30 derniers jours</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <div class="stat-card-title">Genres Disponibles</div>
+                        </div>
+                        <div class="stat-card-icon">🎭</div>
+                    </div>
+                    <div class="stat-card-value" id="total-genres">-</div>
+                    <div class="stat-card-subtitle">Catégories uniques</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h2>Répartition par Type</h2>
+                    <canvas id="type-chart" style="max-height: 300px;"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h2>Top 5 Genres</h2>
+                    <canvas id="genres-chart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Activity Section -->
+            <div class="activity-section">
+                <h2 style="margin-bottom: var(--spacing-lg);">Activité Récente</h2>
+                <div class="activity-tabs">
+                    <button class="activity-tab active" onclick="switchTab('recent')">📝 Derniers Ajouts</button>
+                    <button class="activity-tab" onclick="switchTab('comments')">💬 Derniers Commentaires</button>
+                </div>
+                <div id="activity-content" class="activity-list">
+                    <div class="loading-skeleton"></div>
+                    <div class="loading-skeleton"></div>
+                    <div class="loading-skeleton"></div>
+                </div>
+            </div>
+
+            <!-- Top Content Table -->
+            <div class="chart-card">
+                <h2 style="margin-bottom: var(--spacing-lg);">🏆 Top 10 Contenus les Plus Vus</h2>
+                <table class="top-content-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Titre</th>
+                            <th>Type</th>
+                            <th>Année</th>
+                            <th>Note</th>
+                            <th>Vues</th>
+                        </tr>
+                    </thead>
+                    <tbody id="top-content-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-secondary);">Chargement...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/admin/dashboard-v1.js"></script>
+</body>
+
+</html>
