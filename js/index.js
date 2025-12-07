@@ -28,12 +28,14 @@ async function loadContent() {
         if (!allContent) {
             // Charger tous les contenus
             allContent = await getAllContent();
-            // Cache for 5 minutes
-            cacheManager.set(cacheKey, allContent, 'catalogue');
+            // Cache for 1 minute only (pour voir les nouveautés rapidement)
+            cacheManager.set(cacheKey, allContent, 'catalogue', 60000); // 1 minute
         }
 
-        // Nouveautés (les 12 derniers ajouts)
-        const nouveautes = allContent.slice(0, 12);
+        // Nouveautés (les 12 derniers ajouts, triés par date de création)
+        const nouveautes = [...allContent]
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, 12);
         renderContent('nouveautes-grid', nouveautes);
 
         // Animes populaires
