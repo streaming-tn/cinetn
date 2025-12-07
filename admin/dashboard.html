@@ -12,6 +12,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
+    <!-- Script d'authentification admin -->
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/admin/admin-auth.js"></script>
+
     <style>
         .dashboard-grid {
             display: grid;
@@ -88,6 +93,11 @@
             <a href="manage-comments.html" class="sidebar-link">💬 Gérer les commentaires</a>
             <a href="add-content.html" class="sidebar-link">➕ Ajouter du contenu</a>
             <a href="../index.html" class="sidebar-link">🏠 Retour au site</a>
+            <hr style="border-color: var(--border-color); margin: var(--spacing-md) 0;">
+            <button id="logout-btn" class="sidebar-link"
+                style="width: 100%; text-align: left; background: transparent; border: none; color: inherit; cursor: pointer; font-size: inherit; font-family: inherit; padding: var(--spacing-sm) var(--spacing-md); transition: all var(--transition-base);">
+                🚪 Déconnexion
+            </button>
         </nav>
     </aside>
 
@@ -147,8 +157,6 @@
         </div>
     </main>
 
-    <script src="../js/config.js"></script>
-    <script src="../js/supabase-client.js"></script>
     <script src="../js/admin/dashboard.js"></script>
 </body>
 
