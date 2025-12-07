@@ -5,9 +5,13 @@
 .hero-slider {
     position: relative;
     width: 100%;
-    height: 70vh;
+    height: calc(70vh + var(--header-height));
+    /* Hauteur totale incluant header */
     overflow: hidden;
-    margin-top: var(--header-height);
+    margin-top: 0;
+    /* Pas de margin */
+    padding-top: var(--header-height);
+    /* Padding pour compenser le header */
     z-index: 1;
     /* Sous le header */
 }
