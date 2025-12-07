@@ -2,14 +2,40 @@
 // USER-TRACKING.JS - USER ACTIVITY TRACKING
 // ============================================
 
+// Generate stable browser fingerprint for user identification
+function generateStableFingerprint() {
+    const components = [
+        navigator.userAgent,
+        navigator.language,
+        navigator.languages ? navigator.languages.join(',') : '',
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+        screen.width + 'x' + screen.height,
+        screen.colorDepth,
+        new Date().getTimezoneOffset(),
+        navigator.hardwareConcurrency || 0,
+        navigator.platform
+    ].join('|');
+
+    // Simple hash function
+    let hash = 0;
+    for (let i = 0; i < components.length; i++) {
+        const char = components.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+    }
+
+    return 'user_' + Math.abs(hash).toString(36);
+}
+
 // Generate or retrieve user ID
 function getUserId() {
     let userId = localStorage.getItem('cinetn_user_id');
 
     if (!userId) {
-        // Generate unique user ID (simple fingerprint)
-        userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        // Generate stable user ID based on browser fingerprint
+        userId = generateStableFingerprint();
         localStorage.setItem('cinetn_user_id', userId);
+        console.log('🆔 Generated stable user ID:', userId);
     }
 
     return userId;

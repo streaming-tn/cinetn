@@ -3,13 +3,34 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', async () => {
+    showSkeletonLoaders();
     await loadContent();
 });
 
+function showSkeletonLoaders() {
+    const containers = ['nouveautes-grid', 'animes-grid', 'series-grid', 'films-grid'];
+    containers.forEach(id => {
+        const container = document.getElementById(id);
+        if (container) {
+            container.innerHTML = Array(12).fill(0).map(() =>
+                '<div class="skeleton skeleton-content-card"></div>'
+            ).join('');
+        }
+    });
+}
+
 async function loadContent() {
     try {
-        // Charger tous les contenus
-        const allContent = await getAllContent();
+        // Check cache first
+        const cacheKey = 'homepage_content';
+        let allContent = cacheManager.get(cacheKey, 'catalogue');
+
+        if (!allContent) {
+            // Charger tous les contenus
+            allContent = await getAllContent();
+            // Cache for 5 minutes
+            cacheManager.set(cacheKey, allContent, 'catalogue');
+        }
 
         // Nouveautés (les 12 derniers ajouts)
         const nouveautes = allContent.slice(0, 12);
