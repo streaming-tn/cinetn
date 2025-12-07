@@ -120,6 +120,10 @@ async function initNotifications() {
             const newContent = await getNewContent();
             renderNotifications(newContent);
             dropdown.style.display = 'block';
+
+            // Clear badge after opening
+            badge.style.display = 'none';
+            badge.textContent = '0';
         } else {
             dropdown.style.display = 'none';
         }
